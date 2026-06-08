@@ -139,10 +139,9 @@ label{display:block;color:#888;font-size:12px;margin-bottom:4px;margin-top:12px}
 input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none}
 input[type=number]{-moz-appearance:textfield}
 </style>
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
   const firebaseConfig = {
     apiKey: "AIzaSyAPWgZX9u1kTDYF15X9bP_WSvL-xDHNxI",
     authDomain: "surin-s-muscle.firebaseapp.com",
@@ -152,19 +151,17 @@ input[type=number]{-moz-appearance:textfield}
     messagingSenderId: "16222561469",
     appId: "1:16222561469:web:cd5832aa30aadafbe803d4"
   };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-  const gymRef = ref(db, 'gym');
-
-  // Expose to global scope
-  window._fbSet = (data) => set(gymRef, data);
-  window._fbListen = (cb) => onValue(gymRef, snap => cb(snap.val()));
-  window._fbGet = () => get(gymRef).then(s => s.val());
-  window._fbReady = true;
-
-  // Signal ready
-  window.dispatchEvent(new Event('firebase-ready'));
+  try {
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const gymRef = db.ref('gym');
+    window._fbSet = (data) => gymRef.set(data);
+    window._fbGet = () => gymRef.get().then(s => s.val());
+    window._fbReady = true;
+  } catch(e) {
+    console.log('Firebase init error:', e);
+    window._fbReady = false;
+  }
 </script>
 </head>
 <body>
@@ -1052,87 +1049,81 @@ function closeModal(){ document.getElementById('modal-overlay').style.display='n
 function overlayClick(e){ if(e.target===document.getElementById('modal-overlay')) closeModal(); }
 
 // ── INIT ──────────────────────────────────────────────────────────────
-function initApp(data){
-  if(data && typeof data === 'object'){
-    // Convert Firebase object back to array
-    const arr = Object.values(data);
-    if(arr.length > 0){
-      members = arr;
-      // Also update localStorage
-      try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(members)); }catch(e){}
-    }
-  } else {
-    // No Firebase data — try localStorage then defaults
-    const saved = loadData();
-    members = saved || DEFAULT_MEMBERS;
-    if(!saved) saveData();
-  }
+function showApp(){
   document.getElementById('loading').style.display='none';
   document.getElementById('app').style.display='block';
   renderCards();
 }
 
 window.addEventListener('load', ()=>{
-  // Try to load from localStorage first (instant)
+  // Try localStorage first (instant)
   const localSaved = loadData();
   if(localSaved){
     members = localSaved;
-    document.getElementById('loading').style.display='none';
-    document.getElementById('app').style.display='block';
-    renderCards();
+    showApp();
   }
 
-  // Then load from Firebase (latest data)
+  // Hard timeout — ถ้า 5 วินาทียังไม่โหลดเสร็จ ให้แสดงแอพเลย
+  const fallbackTimer = setTimeout(()=>{
+    if(document.getElementById('loading').style.display !== 'none'){
+      members = localSaved || DEFAULT_MEMBERS;
+      if(!localSaved) saveData();
+      showApp();
+      showToast('⚠️ Firebase timeout — ใช้ข้อมูลในเครื่อง', 'warn');
+    }
+  }, 5000);
+
+  // Load from Firebase
+  let fbAttempts = 0;
   const tryFirebase = () => {
+    fbAttempts++;
+    if(fbAttempts > 20){ // หยุดลองหลัง 10 วินาที
+      clearTimeout(fallbackTimer);
+      if(document.getElementById('loading').style.display !== 'none'){
+        members = localSaved || DEFAULT_MEMBERS;
+        if(!localSaved) saveData();
+        showApp();
+      }
+      return;
+    }
     if(window._fbReady){
-      // Show sync indicator
-      showToast('🔄 กำลัง sync ข้อมูล...', 'warn');
+      clearTimeout(fallbackTimer);
+      if(!localSaved) showToast('🔄 กำลัง sync ข้อมูล...', 'warn');
       window._fbGet().then(data => {
         if(data){
           const arr = Object.values(data);
           if(arr.length > 0){
             members = arr;
             try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(members)); }catch(e){}
-            refreshView();
+            if(!localSaved){ showApp(); } else { refreshView(); }
             showToast('✅ Sync สำเร็จ');
-          } else if(!localSaved){
-            // Firebase empty + no local = first run, save defaults
-            members = DEFAULT_MEMBERS;
-            saveData();
-            document.getElementById('loading').style.display='none';
-            document.getElementById('app').style.display='block';
-            renderCards();
           } else {
-            showToast('✅ ข้อมูลล่าสุดแล้ว');
+            // Firebase ว่าง = ครั้งแรก บันทึก default ขึ้น Firebase
+            members = localSaved || DEFAULT_MEMBERS;
+            saveData();
+            if(!localSaved) showApp();
+            else showToast('✅ ข้อมูลล่าสุดแล้ว');
           }
-        } else if(!localSaved){
-          members = DEFAULT_MEMBERS;
-          saveData();
-          document.getElementById('loading').style.display='none';
-          document.getElementById('app').style.display='block';
-          renderCards();
+        } else {
+          members = localSaved || DEFAULT_MEMBERS;
+          if(!localSaved){ saveData(); showApp(); }
         }
       }).catch(e => {
-        showToast('⚠️ ไม่สามารถเชื่อมต่อ Firebase', 'error');
         if(!localSaved){
           members = DEFAULT_MEMBERS;
-          document.getElementById('loading').style.display='none';
-          document.getElementById('app').style.display='block';
-          renderCards();
+          showApp();
         }
+        showToast('⚠️ Firebase เชื่อมต่อไม่ได้', 'error');
       });
     } else {
-      // Firebase not ready yet, wait
       setTimeout(tryFirebase, 500);
     }
   };
-  
+
   if(!localSaved){
-    // No local data — wait for Firebase
     tryFirebase();
   } else {
-    // Have local data — sync Firebase in background
-    setTimeout(tryFirebase, 100);
+    setTimeout(tryFirebase, 200);
   }
 });
 </script>
