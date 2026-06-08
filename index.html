@@ -654,8 +654,8 @@ function cardHTML(m, compact=false){
         <div class="member-sub">สมาชิกตั้งแต่ ${fmtDate(m.joined)}</div>
       </div>
       <div class="card-btns">
-        <button class="icon-btn gold" onclick="openHistory(${m.id})">📋</button>
-        <button class="icon-btn" onclick="openEdit(${m.id})">✏️</button>
+        <button class="icon-btn gold" data-action="history" data-id="${m.id}">📋</button>
+        <button class="icon-btn" data-action="edit" data-id="${m.id}">✏️</button>
       </div>
     </div>
     <div class="progress-track"><div class="progress-fill${r===0?' red':''}" style="width:${Math.min(ratio,100)}%"></div></div>
@@ -665,11 +665,24 @@ function cardHTML(m, compact=false){
     </div>
     <div class="last-check">📅 เช็คล่าสุด: <b>${fmtDate(m.lastCheck)}</b> <span style="color:#555">${daysStr}</span></div>
     <div class="check-row">
-      <button class="check-btn" ${canCheck?'':"disabled"} onclick="doCheckIn(${m.id})">${canCheck?'✅ เช็คอิน':'🚫 หมดสิทธิ์'}</button>
-      <button class="hist-btn" onclick="openHistory(${m.id})">📋</button>
+      <button class="check-btn" ${canCheck?'':"disabled"} data-action="checkin" data-id="${m.id}">${canCheck?'✅ เช็คอิน':'🚫 หมดสิทธิ์'}</button>
+      <button class="hist-btn" data-action="history" data-id="${m.id}">📋</button>
     </div>
   </div>`;
 }
+
+// ── EVENT DELEGATION (Safari iOS fix) ────────────────────────────────
+document.addEventListener('click', function(e){
+  const btn = e.target.closest('[data-action]');
+  if(!btn) return;
+  const action = btn.dataset.action;
+  const id = +btn.dataset.id;
+  if(action==='checkin') doCheckIn(id);
+  else if(action==='edit') openEdit(id);
+  else if(action==='history') openHistory(id);
+  else if(action==='dash-edit') openEdit(id);
+  else if(action==='dash-history') openHistory(id);
+});
 
 // ── VIEWS ────────────────────────────────────────────────────────────
 let currentView = 'checkin';
@@ -719,7 +732,7 @@ function renderDashboard(){
     <div><div class="warn-name">${m.name}</div><div class="warn-meta">เช็คล่าสุด: ${fmtDate(m.lastCheck)}</div></div>
     <div class="warn-right">
       <span class="status-pill" style="color:${st.color};background:${st.bg}">${st.label}</span>
-      <button class="icon-btn" onclick="openEdit(${m.id})">✏️</button>
+      <button class="icon-btn" data-action="dash-edit" data-id="${m.id}">✏️</button>
     </div>
   </div>`;}).join(''); }
   // table
@@ -729,8 +742,8 @@ function renderDashboard(){
     <div class="td" style="color:${st.color};font-weight:700">${remaining(m)}</div>
     <div class="td">${fmtDate(m.lastCheck)}</div>
     <div style="display:flex;gap:4px">
-      <button class="icon-btn gold" onclick="openHistory(${m.id})">📋</button>
-      <button class="icon-btn" onclick="openEdit(${m.id})">✏️</button>
+      <button class="icon-btn gold" data-action="dash-history" data-id="${m.id}">📋</button>
+      <button class="icon-btn" data-action="dash-edit" data-id="${m.id}">✏️</button>
     </div>
   </div>`;}).join('');
   updateBadges();
