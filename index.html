@@ -772,6 +772,7 @@ function doCheckIn(id){
   const idx=members.findIndex(m=>m.id===id);
   if(idx<0) return;
   const m=members[idx];
+  if(!m.history) m.history=[];
   if(remaining(m)<=0){ showToast(`${m.name} หมดสิทธิ์แล้ว!`,'error'); return; }
   const {date}=now();
   const todayCount=m.history.filter(h=>h.date===date).length;
@@ -820,6 +821,7 @@ function doCheckInNow(id, note=''){
   const idx=members.findIndex(m=>m.id===id);
   if(idx<0) return;
   const m=members[idx];
+  if(!m.history) m.history=[];
   const {date,time}=now();
   const newH={id:(m.history.length?Math.max(...m.history.map(h=>h.id))+1:1), date, time, note};
   members[idx]={...m, sessions:m.sessions+1, lastCheck:date, history:[...m.history,newH]};
@@ -932,6 +934,7 @@ function openHistory(id){
 function renderHistory(){
   const m=members.find(m=>m.id===histId);
   if(!m) return;
+  if(!m.history) m.history=[];
   const hist=[...(m.history||[])].sort((a,b)=>b.date.localeCompare(a.date)||(b.time||'').localeCompare(a.time||''));
   const r=remaining(m);
   document.getElementById('modal-box').innerHTML=`
