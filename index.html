@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Surin's Muscle Gym</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--gold:#FFD600;--gold2:#FFC000;--bg:#0a0a0a;--card:#141414;--border:#222;--red:#ff2d2d;--green:#22c55e}
+body{background:var(--bg);color:#fff;font-family:'Sarabun',sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(45deg,#FFD60008 0,#FFD60008 1px,transparent 1px,transparent 40px),repeating-linear-gradient(-45deg,#FFD60006 0,#FFD60006 1px,transparent 1px,transparent 40px);pointer-events:none;z-index:0}
+
+/* HEADER */
+header{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,#111 60%,#1a1500);border-bottom:2px solid var(--gold);box-shadow:0 4px 40px #FFD60022}
+.logo-row{display:flex;align-items:center;gap:12px;padding:14px 16px 10px}
+.logo-icon{width:46px;height:46px;background:var(--gold);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 0 20px #FFD60066;flex-shrink:0}
+.logo-title{font-size:18px;font-weight:900;letter-spacing:1px;color:var(--gold);text-shadow:0 0 20px #FFD60066}
+.logo-sub{font-size:11px;color:#888}
+.warn-badge{margin-left:auto;background:#2a1a00;border:1px solid var(--gold);color:var(--gold);padding:5px 10px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;cursor:pointer}
+nav{display:flex;border-top:1px solid #1a1a1a}
+.nav-btn{flex:1;background:none;border:none;color:#666;font-family:inherit;font-size:13px;font-weight:700;padding:10px 4px;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;position:relative}
+.nav-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+.nav-badge{position:absolute;top:6px;right:6px;background:#ff2d2d;color:#fff;border-radius:99px;font-size:9px;font-weight:900;padding:1px 5px}
+
+/* VIEWS */
+main{position:relative;z-index:5;padding:16px;max-width:800px;margin:0 auto}
+.search-row{display:flex;gap:10px;margin-bottom:16px}
+.search-input{flex:1;background:#181818;border:1px solid #333;color:#fff;border-radius:10px;padding:11px 14px;font-size:14px;font-family:inherit;outline:none}
+.btn-add{background:var(--gold);color:#000;border:none;border-radius:10px;padding:11px 16px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;white-space:nowrap}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+
+/* CARD */
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;transition:border .2s}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.member-name{font-weight:800;font-size:15px;color:#fff;margin-bottom:2px;word-break:break-word}
+.member-sub{font-size:11px;color:#555}
+.card-btns{display:flex;gap:6px;flex-shrink:0}
+.icon-btn{background:#1e1e1e;border:1px solid #333;color:#888;border-radius:8px;padding:4px 9px;cursor:pointer;font-size:13px}
+.icon-btn.gold{color:var(--gold);border-color:#FFD60044}
+.progress-track{height:5px;background:#222;border-radius:99px;margin-bottom:5px;overflow:hidden}
+.progress-fill{height:100%;border-radius:99px;transition:width .5s ease;background:var(--gold)}
+.progress-fill.red{background:var(--red)}
+.progress-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.progress-text{color:#aaa;font-size:11px}
+.status-pill{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px}
+.last-check{font-size:11px;color:#666;margin-bottom:12px}
+.check-row{display:flex;gap:8px}
+.check-btn{flex:1;background:var(--gold);color:#000;border:none;border-radius:10px;padding:11px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;transition:all .2s}
+.check-btn:disabled{background:#1e1e1e;color:#444;cursor:not-allowed}
+.hist-btn{flex:0 0 42px;background:#1e1e1e;color:var(--gold);border:1px solid #333;border-radius:10px;font-size:15px;cursor:pointer}
+
+/* TOAST */
+#toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);padding:11px 24px;border-radius:50px;font-weight:700;font-size:14px;z-index:9999;box-shadow:0 4px 30px #0008;display:none;max-width:90vw;text-align:center}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:#000c;z-index:200;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal{background:#141414;border:1px solid var(--gold);border-radius:16px;padding:24px;width:100%;max-width:380px;max-height:85vh;overflow-y:auto;box-shadow:0 0 60px #FFD60022}
+.modal-title{font-size:17px;font-weight:800;color:var(--gold);margin-bottom:16px}
+label{display:block;color:#888;font-size:12px;margin-bottom:4px;margin-top:12px}
+.modal input[type=text],.modal input[type=number],.modal input[type=date],.modal input[type=time]{width:100%;background:#0a0a0a;border:1px solid #333;color:#fff;border-radius:8px;padding:10px 12px;font-size:14px;font-family:inherit;outline:none}
+.session-row{display:grid;grid-template-columns:1fr 14px 1fr 14px 1fr;gap:4px;align-items:center;margin:14px 0 4px}
+.session-box{background:#0d0d0d;border-radius:10px;padding:10px 8px 8px;text-align:center}
+.session-box .slabel{font-size:10px;font-weight:700;margin-bottom:4px}
+.session-box input{background:transparent;border:none;color:#aaa;font-size:18px;font-weight:900;width:100%;text-align:center;font-family:inherit;outline:none}
+.session-box.gold{border:1px solid #FFD60066}.session-box.gold .slabel{color:var(--gold)}.session-box.gold input{color:var(--gold)}
+.session-box.dark{border:1px solid #333}.session-box.dark .slabel{color:#888}
+.session-box.remain{border:1px solid #22c55e44;background:#001a08}.session-box.remain .slabel{color:var(--green)}.session-box.remain .rval{font-size:18px;font-weight:900;color:var(--green);padding:6px 0}
+.session-box.remain.red{border-color:#ff2d2d44;background:#1a0000}.session-box.remain.red .slabel{color:var(--red)}.session-box.remain.red .rval{color:var(--red)}
+.op{color:#444;font-size:16px;text-align:center}
+.session-hint{color:#444;font-size:11px;text-align:center;margin-top:6px}
+.modal-btns{display:flex;gap:10px;margin-top:16px}
+.btn-primary{flex:1;background:var(--gold);color:#000;border:none;border-radius:10px;padding:11px;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit}
+.btn-secondary{flex:1;background:#1e1e1e;color:#aaa;border:1px solid #333;border-radius:10px;padding:11px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit}
+.btn-danger{width:100%;margin-top:10px;background:transparent;border:1px solid #ff2d2d44;color:#ff6b6b;border-radius:10px;padding:10px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit}
+
+/* HISTORY MODAL */
+.hist-summary{display:flex;gap:8px;margin-bottom:14px}
+.hist-stat{flex:1;background:#0d0d0d;border-radius:10px;padding:10px 6px;text-align:center}
+.hist-stat .hval{font-weight:800;font-size:13px}
+.hist-stat .hlbl{color:#444;font-size:10px;margin-top:2px}
+.hist-add-btn{width:100%;background:#1a1500;border:1px dashed #FFD60066;color:var(--gold);border-radius:10px;padding:10px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;margin-bottom:12px}
+.timeline{position:relative;overflow-y:auto;max-height:50vh;padding-right:4px}
+.timeline::before{content:'';position:absolute;left:15px;top:0;bottom:0;width:2px;background:#1e1e1e}
+.tl-item{display:flex;gap:12px;margin-bottom:10px;position:relative}
+.tl-dot{width:32px;height:32px;border-radius:50%;border:2px solid #2a2a2a;background:#1a1a1a;display:flex;align-items:center;justify-content:center;flex-shrink:0;z-index:1;font-size:12px;font-weight:700;color:#555}
+.tl-dot.first{background:var(--gold);border-color:var(--gold);color:#000}
+.tl-card{flex:1;background:#0d0d0d;border:1px solid #1a1a1a;border-radius:10px;padding:10px 12px}
+.tl-card.first{background:#1a1500;border-color:#FFD60033}
+.tl-date{font-weight:700;font-size:13px;color:#ccc}
+.tl-date.first{color:var(--gold)}
+.tl-meta{font-size:11px;color:#555;margin-top:2px}
+.tl-actions{display:flex;gap:6px;margin-top:0}
+.tl-edit-btn{background:#1e2a1e;border:1px solid #33553320;color:#4ade80;border-radius:7px;padding:3px 8px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:700}
+.tl-del-btn{background:#2a1a1a;border:1px solid #55222220;color:#ff6b6b;border-radius:7px;padding:3px 8px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:700}
+.tl-edit-form{background:#0d0d0d;border:1px solid #FFD60066;border-radius:10px;padding:12px;margin-bottom:10px}
+.tl-edit-form .row{display:flex;gap:8px;margin-bottom:10px}
+.tl-edit-form .col{flex:1}
+.tl-edit-form .col label{font-size:11px;color:#666}
+.tl-edit-form input{width:100%;background:#141414;border:1px solid #333;color:#fff;border-radius:8px;padding:8px;font-size:13px;font-family:inherit;outline:none}
+
+/* CONFIRM */
+.confirm-box{background:#1a1a1a;border:1px solid #ff2d2d66;border-radius:14px;padding:24px;width:100%;max-width:320px;text-align:center}
+.confirm-box .icon{font-size:30px;margin-bottom:10px}
+.confirm-box .ctitle{color:#fff;font-weight:700;font-size:15px;margin-bottom:6px}
+.confirm-box .cname{color:#ff6b6b;font-weight:800;font-size:15px;margin-bottom:8px;word-break:break-word}
+.confirm-box .cdesc{color:#666;font-size:13px;margin-bottom:18px}
+.confirm-btns{display:flex;gap:10px}
+
+/* DASHBOARD */
+.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center}
+.stat-icon{font-size:26px;margin-bottom:4px}
+.stat-val{font-size:28px;font-weight:900;color:var(--gold)}
+.stat-lbl{font-size:11px;color:#666;margin-top:2px}
+.section-title{font-size:14px;font-weight:700;color:var(--gold);margin:18px 0 10px;border-left:3px solid var(--gold);padding-left:10px;display:flex;align-items:center;gap:8px}
+.warn-row{background:var(--card);border:1px solid #2a1a00;border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.warn-name{color:#fff;font-weight:700;font-size:14px}
+.warn-meta{color:#888;font-size:11px}
+.warn-right{display:flex;align-items:center;gap:8px}
+.table{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:20px}
+.table-head,.table-row{display:grid;grid-template-columns:2fr 1fr 1fr 1.5fr 60px;gap:8px;padding:10px 14px;align-items:center}
+.table-head{background:#1a1500}
+.th{color:var(--gold);font-size:11px;font-weight:700}
+.table-row{border-top:1px solid #1a1a1a}
+.td-name{color:#fff;font-weight:600;font-size:13px;word-break:break-word}
+.td{color:#aaa;font-size:12px}
+
+/* ALERT VIEW */
+.alert-summary{display:flex;gap:8px;margin-bottom:20px}
+.alert-box{flex:1;border-radius:10px;padding:12px 14px}
+
+/* LOADING */
+#loading{position:fixed;inset:0;background:#0a0a0a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:9999}
+.loading-icon{width:52px;height:52px;background:var(--gold);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:28px}
+.loading-title{color:var(--gold);font-weight:800;font-size:17px;letter-spacing:1px}
+.loading-sub{color:#666;font-size:13px}
+
+input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none}
+input[type=number]{-moz-appearance:textfield}
+</style>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script>
+  try {
+    firebase.initializeApp({
+      apiKey: "AIzaSyAPWgZX9u1kTDYF15X9bP_WSvL-xDHNxI",
+      authDomain: "surin-s-muscle.firebaseapp.com",
+      databaseURL: "https://surin-s-muscle-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "surin-s-muscle",
+      storageBucket: "surin-s-muscle.firebasestorage.app",
+      messagingSenderId: "16222561469",
+      appId: "1:16222561469:web:cd5832aa30aadafbe803d4"
+    });
+    const _db = firebase.database();
+    const _ref = _db.ref('gym');
+    window._fbSet = (data) => _ref.set(data);
+    window._fbGet = () => _ref.get().then(s => s.val());
+    window._fbReady = true;
+  } catch(e) {
+    console.log('Firebase init error:', e);
+    window._fbReady = false;
+  }
+</script>
+</head>
+<body>
+
+<div id="loading">
+  <div class="loading-icon">🏋️</div>
+  <div class="loading-title">SURIN'S MUSCLE GYM</div>
+  <div class="loading-sub">กำลังโหลดข้อมูล...</div>
+</div>
+
+<div id="app" style="display:none">
+
+<header>
+  <div class="logo-row">
+    <div class="logo-icon">🏋️</div>
+    <div>
+      <div class="logo-title">SURIN'S MUSCLE GYM</div>
+      <div class="logo-sub">Fitness Check-In System</div>
+    </div>
+    <div id="warn-badge" class="warn-badge" onclick="setView('alerts')" style="display:none"></div>
+  </div>
+  <nav>
+    <button class="nav-btn active" data-view="checkin" onclick="setView('checkin')">🏅 เช็คอิน</button>
+    <button class="nav-btn" data-view="alerts" onclick="setView('alerts')">⚠️ แจ้งเตือน<span id="alert-badge" class="nav-badge" style="display:none"></span></button>
+    <button class="nav-btn" data-view="dashboard" onclick="setView('dashboard')">📊 Dashboard</button>
+  </nav>
+</header>
+
+<div id="view-checkin">
+  <main>
+    <div class="search-row">
+      <input class="search-input" placeholder="🔍 ค้นหาชื่อสมาชิก..." oninput="renderCards()" id="search">
+      <button class="btn-add" onclick="addMember()">+ เพิ่มสมาชิก</button>
+    </div>
+    <div class="card-grid" id="card-grid"></div>
+  </main>
+</div>
+
+<div id="view-alerts" style="display:none">
+  <main>
+    <div style="margin-bottom:18px">
+      <div style="font-size:19px;font-weight:900;color:#fff;margin-bottom:4px">⚠️ แจ้งเตือนสมาชิก</div>
+      <div style="color:#555;font-size:13px">สมาชิกที่ต้องการการดูแลเป็นพิเศษ</div>
+    </div>
+    <div class="alert-summary">
+      <div class="alert-box" style="background:#1a0000;border:1px solid #ff2d2d44">
+        <div id="al-out" style="color:#ff2d2d;font-size:24px;font-weight:900">0</div>
+        <div style="color:#882222;font-size:11px;margin-top:2px">หมดสิทธิ์แล้ว</div>
+      </div>
+      <div class="alert-box" style="background:#1a1400;border:1px solid #FFD60044">
+        <div id="al-warn" style="color:#FFD600;font-size:24px;font-weight:900">0</div>
+        <div style="color:#886600;font-size:11px;margin-top:2px">ใกล้หมดสิทธิ์</div>
+      </div>
+      <div class="alert-box" style="background:#001a08;border:1px solid #22c55e44">
+        <div id="al-ok" style="color:#22c55e;font-size:24px;font-weight:900">0</div>
+        <div style="color:#116622;font-size:11px;margin-top:2px">ปกติ</div>
+      </div>
+    </div>
+    <div style="font-size:15px;font-weight:700;color:#ff2d2d;margin-bottom:10px;border-left:3px solid #ff2d2d;padding-left:10px">🚫 หมดสิทธิ์แล้ว</div>
+    <div class="card-grid" id="alert-out-grid"></div>
+    <div style="font-size:15px;font-weight:700;color:#FFD600;margin:16px 0 10px;border-left:3px solid #FFD600;padding-left:10px">⚠️ ใกล้หมดสิทธิ์ (เหลือ ≤ 20%)</div>
+    <div class="card-grid" id="alert-warn-grid"></div>
+  </main>
+</div>
+
+<div id="view-dashboard" style="display:none">
+  <main>
+    <div style="font-size:19px;font-weight:800;color:var(--gold);margin-bottom:16px">📊 ภาพรวม Dashboard</div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-val" id="d-total">0</div><div class="stat-lbl">สมาชิกทั้งหมด</div></div>
+      <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-val" id="d-today">0</div><div class="stat-lbl">เช็คอินวันนี้</div></div>
+      <div class="stat-card"><div class="stat-icon">🏋️</div><div class="stat-val" id="d-total-ci">0</div><div class="stat-lbl">ครั้งรวมทั้งหมด</div></div>
+      <div class="stat-card"><div class="stat-icon">⚠️</div><div class="stat-val" id="d-warn">0</div><div class="stat-lbl">ใกล้หมดสิทธิ์</div></div>
+    </div>
+    <div class="section-title">⚠️ สมาชิกที่ต้องดูแล <button onclick="setView('alerts')" style="margin-left:8px;background:#FFD60022;border:1px solid #FFD60066;color:var(--gold);border-radius:20px;padding:2px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">ดูทั้งหมด →</button></div>
+    <div id="dash-warn-list"></div>
+    <div class="section-title">📋 สมาชิกทั้งหมด</div>
+    <div class="table">
+      <div class="table-head"><div class="th">ชื่อ</div><div class="th">มาแล้ว/ซื้อมา</div><div class="th">เหลือ</div><div class="th">เช็คล่าสุด</div><div class="th"></div></div>
+      <div id="dash-table"></div>
+    </div>
+  </main>
+</div>
+
+</div><!-- #app -->
+
+<!-- MODALS -->
+<div id="modal-overlay" class="modal-overlay" style="display:none" onclick="overlayClick(event)">
+  <div id="modal-box"></div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── DATA ────────────────────────────────────────────────────────────
+const D = [
+"1|หมอกาฟิลด์|13|20|2025-04-30|2025-03-03",
+"2|กิ๊ง สุวพิชญ์ ปานแปลง|28|20|2025-12-05|2025-03-04",
+"3|เจ้แกน 45 ครั้ง|0|21|2026-05-31|2025-04-24",
+"4|พี่ก้อย น้าโจ้|0|9|2026-04-29|2026-02-12",
+"5|กร ธันย์ดนัย กลิ่นสุดา|14|20|2025-04-24|2024-09-03",
+"6|เจ๊เก๋|8|20|2026-05-25|2024-11-25",
+"7|ก้อย พฤกษชาติ|1|16|2026-05-20|2026-04-23",
+"8|ก้อง ธกส รตศักดิ์ มาอินทร์|4|4|2026-05-22|2026-04-19",
+"9|พี่เก่ง พ่อนิชา|4|6|2026-05-31|2023-12-14",
+"10|กันต์ รัตนชัย ก้านน้อย|51|20|2026-05-11|2024-01-08",
+"11|เก้า สุกฤช พิมพลีชัย|3|20|2026-01-31|2025-08-17",
+"12|แก้ม (เฟย) 2คอร์ส|2|2|2026-01-05|2025-12-15",
+"13|แก้ม (เฟย)|15|20|2026-05-28|2025-06-03",
+"14|กวาง ชลพันรัตน์|8|20|2026-03-27|2026-03-16",
+"15|หมอเกมส์ ชัยชนะ จันทร์ฤาไชย|9|20|2024-04-30|2023-12-01",
+"16|พี่เกรซ|10|20|2025-12-19|2022-12-04",
+"17|กาย สินธร ภัทรวรรจน์|14|20|2025-06-06|2024-03-06",
+"18|เกมส์ เกียรตพัชร์ จันทร์ชุ่ม|3|4|2026-05-31|2026-04-27",
+"19|กวาง เทรนเดี่ยว สนธยา แหวนอ่อน|27|20|2026-05-25|2025-05-23",
+"20|ข้าวสวย ลักษมี ไหว้ครู|0|1|2026-01-16|2026-01-16",
+"21|ขมิ้น|0|17|2026-05-24|2026-01-22",
+"22|สายขวัญ กาญจทิพย์ สุรัจ|11|20|2025-09-12|2025-05-08",
+"23|ครูไข่|1|19|2026-05-31|2026-04-26",
+"24|ไข่มด กัญฐิกา|7|20|2025-07-04|2025-01-12",
+"25|ขวัญ ขวัญฟ้า ไหวดี|16|20|2025-10-23|2024-10-17",
+"26|พี่ขวัญ เฉลิมขวัญ สุปังคลัด|2|2|2026-05-26|2026-05-26",
+"27|ไข่มุก+เฮียวัฒน์|0|11|2025-09-16|2024-10-31",
+"28|โขม|60|20|2026-05-25|2024-12-05",
+"29|เค้ก กิ้ว|7|20|2025-08-24|2025-05-05",
+"30|เฮียเคี้ยง|0|43|2026-05-24|2026-04-24",
+"31|แคท (อิง)จรัสแสง คูณวัฒนาพงษ์|0|17|2026-04-07|2026-04-02",
+"32|ครีม สรัลพิมพ์ เจือจันทร์|0|2|2026-04-29|2025-07-03",
+"33|คิน ภูชร รังคกูลนุวัฒน์|11|20|2025-08-30|2023-12-07",
+"34|เค้ก พิชญาภรณ์ จองดี|1|19|2026-05-31|2025-09-08",
+"35|เจ๊ง้อ|5|20|2025-07-21|2025-06-26",
+"36|เจี๊ยบ (นัท) เทพวิภา ต่างทอง (เทรนเดี่ยว)|10|20|2026-02-15|2025-07-22",
+"37|เจเจน ปราสาท|16|20|2025-12-29|2025-06-26",
+"38|พี่จิ๊ป สะโรรักษ์|0|8|2026-04-25|2026-02-27",
+"39|พี่เจิน ปราสาท|2|39|2026-01-13|2025-06-21",
+"40|เจี๊ยบ เกศินี ภูมะลา (3500)|4|20|2025-12-26|2024-09-22",
+"41|เจ๊ง้อ (40)|1|20|2025-07-22|2025-07-22",
+"42|ป้าจี๊ด สุภาพร สังข์น้อย|0|5|2026-01-12|2026-01-12",
+"43|เจ ปราสาท|10|20|2026-05-11|2025-09-04",
+"44|จอมแจม (ธกส)ลลิตภัทร สุบินดี|0|12|2026-04-26|2026-03-03",
+"45|เฮียแจ็ค ชาญยุทธ คูณวัฒนาพงษ์|6|20|2025-09-16|2025-08-17",
+"46|นาจา ศิวกร ยอดอินทร์|6|20|2025-09-13|2025-08-06",
+"47|เจมส์ (อิง)พีรดนย์ ชาติกิจอนันต์|3|17|2026-05-31|2026-05-13",
+"48|จิว วนัสดา ใจกล้า (3500)|8|8|2025-10-05|2025-10-02",
+"49|จิว (หยก) ภัสสรข้าวมันไก่|40|20|2026-05-30|0687-10-07",
+"50|จา แฟนอาฟ จาริณี วัฒนประดิษฐ์|1|17|2026-05-28|2026-01-21",
+"51|โจ้bnk|9|22|2026-05-13|2025-10-20",
+"52|เจ็ง เกศแก้ว พงษ์ชวนะกุล ()|3|20|2026-05-16|2025-08-17",
+"53|เจิน ปำญญภัสร์ พิทักษ์เศรษฐการ ()|7|20|2026-05-31|2025-08-02",
+"54|จ๋า (เภสัช)บงกช|3|20|2026-01-13|2026-01-04",
+"55|เจนนี่ พัณณ์ชิตา พิชัยขะปรวัช|16|20|2026-05-27|2026-01-29",
+"56|พี่ชาญ (2คอร์ส)|2|8|2026-04-21|2026-02-12",
+"57|พี่ชาญ|20|20|2026-05-26|2026-01-15",
+"58|เชอร์รี่ ณัฏฐ์ภัชมนฑ์ ห้วยหงษ์ทอง|18|20|2025-10-22|2025-09-06",
+"59|เฮียช้าง พ่อฟ้า สันติ ชัชราภรณ์|0|3|2026-05-30|2024-07-10",
+"60|แฟนเฮียช้าง|4|20|2026-04-27|2026-04-01",
+"61|ชาติ (เฟย)|6|26|2026-05-03|2026-04-27",
+"62|ชมพู่ จิตโสภิณ โสหา|4|20|2026-03-14|2026-02-26",
+"63|แชมป๊ (เฟิร์ส)ทวีหิรัญ|4|20|2026-02-26|2026-02-17",
+"64|ชิม กิตติพงษ์ ติยวรนันท์|0|15|2026-03-04|2026-02-24",
+"65|หมอชมพู่ ชนากานต์ ศิริประภานุกูล|4|20|2026-03-15|2026-02-26",
+"66|หมอแซนด์ ศิวายพราหมณ์ ()|1|15|2026-05-28|2026-05-16",
+"67|โซดา|7|20|2024-12-26|2024-12-16",
+"68|โซวี่ จุฑามาส (แทน)|0|6|2025-05-03|2025-04-26",
+"69|เซน เซฟ ซัน เจ้พุทธา|6|20|2026-03-15|2025-05-19",
+"70|แซม วีรพงษ์ วรรณทอง|1|20|2025-06-24|2025-06-24",
+"71|พี่สู้ (ซู่)|60|20|2026-05-26|2016-04-09",
+"72|พี่ต้อม (อาเหน่ง)|4|90|2026-05-15|2025-12-18",
+"73|ป้าเตับ นางพรเพ็ญ สุจินพรัหม|49|20|2026-03-09|2025-08-09",
+"74|น้องซีโน่ ลูกเฮียเบส|2|20|2025-09-13|2025-09-12",
+"75|เต้ย ปิยณัฐ พิมพ์โพธิ์กลาง|1|20|2025-09-19|2025-09-19",
+"76|เฮียตั้ม (สยามอะไหล่) ไตเติ้ล ไตตั้น|20|20|2026-05-29|2025-08-29",
+"77|เฮียโต้ง (สยาม)|40|20|2026-05-06|2025-11-04",
+"78|ตั้ม (เฟิร์ส)46 ครั้ง|20|20|2026-04-07|2025-12-25",
+"79|ตั้ม (เฟิร์ส)|16|20|2026-05-31|2026-04-21",
+"80|หมอแตง น้องโอัค|0|14|2026-05-28|2025-08-01",
+"81|หมอแตง น้องโอัค2คอร์ส|19|20|2026-04-07|2025-08-25",
+"82|ตู่ (พลอย)|4|20|2025-10-05|2025-09-27",
+"83|ต้อง เทรนเดี่ยว|16|20|2025-07-29|2025-07-03",
+"84|เฮียโต้ง (บีลีฟ)|3|17|2026-05-28|2025-09-02",
+"85|แต๋ม พัชรินทร์ เงินเพชร ()|5|20|2026-03-23|2025-10-15",
+"86|น้องตะวัน จิรครินทร์ ศุภกรแสงทอง ()|0|37|2026-04-02|2025-10-07",
+"87|ตะวัน จิรครินทร์ ศุภกรแสงทอง 45 ครั้ง|23|20|2026-05-12|2025-10-07",
+"88|ต่อ พิก วีรพงษ์ แสนกล้า|3|10|2026-03-09|2025-12-21",
+"89|เต้ (พี่เสือ)เทรนเดี่ยว กฤติโชติ|43|20|2026-05-21|2025-12-27",
+"90|พี่ตั้ว พงษ์ธร|0|4|2026-03-06|2026-01-27",
+"91|ตอง มัชฌิมา นาทรัพท์|28|20|2026-05-20|2025-08-07",
+"92|พี่เตี้ย พวงพยอม สารัตน์|0|0|2026-02-16|2026-02-13",
+"93|ติ๊ส บัณฑิต|5|20|2026-02-24|2025-10-01",
+"94|เต๋ง สุชาดา ยิ่งได้ชม|13|20|2026-01-26|2025-06-08",
+"95|เตี๋ยว (เอ็ม)|8|20|2026-05-21|2025-06-10",
+"96|ตาต้า (ขมิ้น)พันตรี ลับโกษา|4|20|2025-12-11|2025-11-19",
+"97|ต่อ (เพื่อนชิม)ชนธรณ์|6|20|2026-02-04|2026-01-14",
+"98|พี่เต้ (พี่น้อย) ประไพพิศ|9|20|2026-02-05|2026-01-22",
+"99|พี่ตู่ ยี่สุ่นเทศ ใจพร|0|17|2026-03-16|2026-02-25",
+"100|เติ้ล(เตอร์)|2|20|2026-05-15|2026-03-28",
+"101|น้องเตอร์ รัฐพงศ์|7|8|2026-05-20|2026-04-30",
+"102|ตุับตั๊บ|43|20|2026-06-03|2024-08-04",
+"103|ทิพย์ รุ่งทิพย์|14|20|2026-04-08|2024-08-18",
+"104|อาเหน่ง (พี่ต้อม)|56|20|2026-05-29|2025-06-02",
+"105|พี่น้อง (เฟิร์น)สมัครโปร 2โปร=4คอร์ส|8|23|2026-05-31|2025-08-28",
+"106|น้ำ (สสจ) ภัทรพร บูรพากูร|2|39|2026-05-24|2025-06-15",
+"107|นน คมสัน|11|20|2025-08-06|2025-05-01",
+"108|นํ้า (แฟนเฮียเจมส์)นภสร จึงสุวัฒนานนท์|11|20|2025-04-02|2025-02-28",
+"109|นุ้ย นันท์ธิรา หงษ์เหิน|4|20|2026-03-04|2025-04-03",
+"110|น้านิ 0650962446|11|20|2025-12-19|2025-02-06",
+"111|หมอนิว (ชาติ) ปานเนตร สุขแสวง 45 ครั้ง|5|21|2026-05-15|2026-03-30",
+"112|หมอนิว (ชาติ) ปานเนตร สุขแสวง|40|20|2026-05-30|2025-01-13",
+"113|หมออนา นณัฐดา กวดยา|3|20|2025-05-17|2025-05-14",
+"114|นินิว ครีม ปาริฉัตร กุศลสุวรรณเลิศ|13|20|2025-12-22|2025-01-22",
+"115|นัท (เจี๊ยบ)ธนพัศย์ วิเชียรภูริเดช เทรนเดี่ยว|1|20|2026-02-15|2026-02-15",
+"116|นุ่น ชไมพร 2|2|4|2026-02-01|2025-12-22",
+"117|นุ่น ชไมพร|38|20|2026-05-26|2025-06-06",
+"118|พี่น้อย จุฑารัตน์|1|20|2026-03-31|2026-03-31",
+"119|แนน เทรนเดี่ยว แถม 47ครั้ง|1|20|2026-01-05|2026-01-05",
+"120|แนน เทรนเดี่ยว|9|20|2026-05-31|2026-05-04",
+"121|นิก รัชตะ เทรนเดี่ยว|6|20|2026-02-11|2026-01-29",
+"122|พี่นพ นพดล สุจินพราหม์|0|3|2026-05-06|2026-02-25",
+"123|บี บีมาเก็ต จิราภรณ์ เขียวหวาน|8|20|2025-07-05|2025-06-13",
+"124|เฮียบิ๊ก+พี่เชอรี่ เดอะโบว์หล่อเกษมศานต์ 45 ครั้ง|13|20|2025-10-23|2025-04-23",
+"125|นันท์ (ล้อซิ่ง)พันธนันท์ มีทองแสน|1|20|2025-02-13|2025-02-13",
+"126|บิว ยีน รติพร หินคำ|8|20|2025-10-21|2025-09-07",
+"127|โบอิ้ง|6|20|2026-04-21|2025-08-08",
+"128|บุ๋ม วิไลภรณ์ ตุ้มทอง|2|20|2025-06-05|2025-06-03",
+"129|แบงค์ ธนาคาร ธนสินวงศ์ชัย|30|20|2026-05-10|2014-05-12",
+"130|เฮียเบส สรันปาร์ค อัฐวิชญ์ ปรีชาสินธุศักดิ์|0|11|2026-05-12|2025-02-10",
+"131|โบว์ (ทอม)|11|20|2026-02-10|2025-03-09",
+"132|โบว์ (น้องบีหม่อน) ปรีย์ธิดา รชตเจริญทรัพย์|18|20|2025-10-19|2025-02-02",
+"133|โบว์ เทรนเดี่ยว ธิดารัตน์ ศรีสุวรรณวัฒนา|0|83|2026-05-29|2026-05-21",
+"134|หมอบิ๊ก ท่าตูม น้องออย|30|20|2026-05-31|2024-10-21",
+"135|หมอบอย สนม เทรนเดี่ยว (4คอร์ส)|18|20|2026-02-09|2025-12-29",
+"136|หมอบ้อย สนม เทรนเดี่ยว|0|9|2026-05-31|2025-02-14",
+"137|หมอแบงค์ สุวิจักษ์ เจริญรัตน์|14|20|2026-05-24|2025-11-30",
+"138|บีม รวิภาสษ์ เทรนเดี่ยว|0|6|2026-03-26|2026-03-03",
+"139|บีม เทรนรวม|14|20|2026-04-30|2026-04-02",
+"140|หมอเบรฟ (3500)|3|36|2026-05-29|2025-08-15",
+"141|อ.บุัค สุกฤตา ปุณยอุปพัทธ์|10|20|2025-07-06|2025-05-24",
+"142|พี่บุ๋ม อัจฉรา|10|20|2026-05-30|2025-12-28",
+"143|หมอบูม กฤษดา จิตรรักษ์บํารุง|10|20|2026-02-13|2026-01-15",
+"144|ร้องบ้อม แมนพล สุวรรณเสวก|0|13|2026-02-10|2026-01-28",
+"145|แบม ภิญญาพัชญ์ สุนทรดี|0|18|2026-03-09|2025-09-13",
+"146|โบว์ ธารทิพย์|2|19|2026-05-31|2026-05-14",
+"147|แป้ง เทรนเดี่ยว กัญจน์ชญา โสรถาวร|13|20|2025-12-09|2025-08-27",
+"148|ปุ้ย กรรณิการณ์ นุชเจริญ|10|20|2025-09-23|2025-07-23",
+"149|ป่อบอาย ณัฐพงษ์ บุญแจก|15|20|2025-07-23|2025-01-07",
+"150|เปอร์ ปำุน|13|20|2026-03-22|2025-03-22",
+"151|ปาล์ม (ปาร์ค)ชนกานต์ ลอวีระอมรพันธ์ ()|1|10|2026-03-15|2026-03-01",
+"152|ปอย รัฐวิภา|3|20|2024-03-30|2024-03-28",
+"153|ป้อหลี สปำน จันทร์เจริญชัย|51|20|2026-05-31|2023-04-28",
+"154|แป้ง (โอัต) สมิตา|9|20|2025-07-08|2025-04-03",
+"155|พี่ปำุง|10|20|2024-12-04|2024-03-14",
+"156|แป้ง นัฐยา ชาญศรี (ครั้ง)|10|20|2025-11-21|2024-12-20",
+"157|เปิุล ธัญญารัตน์ ประเสริฐ|0|14|2026-03-09|2026-01-09",
+"158|ปอ เทรนเดี่ยว ปิยวัชน์|14|20|2025-11-04|2025-09-11",
+"159|พี่แป้ว จันทิมา โสรถาวร ()|0|15|2026-03-23|2025-10-06",
+"160|ป้อ + โรตี|20|20|2026-05-21|2023-05-07",
+"161|ปลา ลัคนา แสงสว่าง (กรุงไทย) ()|6|6|2026-04-19|2026-03-30",
+"162|ปลื้ม(หญิง)ผักบุ้ง|0|15|2026-04-21|2026-03-26",
+"163|ปาร์ค ธรธรณ์ ()|1|20|2026-02-22|2026-02-22",
+"164|ป้อม (เหียก) ประสิทธิ์|32|20|2026-05-24|2025-10-03",
+"165|ป้อม (พี่เสือ)|18|20|2026-04-27|2026-03-19",
+"166|ป้อม (พี่เสือ)40|19|20|2026-05-29|2025-06-01",
+"167|ปืน สุธี มีแก้ว|4|20|2026-01-22|2026-01-09",
+"168|ปอ (เพื่อนพั้นช์)|4|20|2025-10-31|2025-10-19",
+"169|ปิ็น ศิริรัตน์ วงศ์สกุล|54|20|2026-05-11|2024-03-19",
+"170|เจัปิูง ชรินณ์ทิพย์ จิวจิรภากรณ์|2|20|2024-03-18|2024-03-13",
+"171|เฮียป้อม ไพโรจน์ (เพื่อนเฮียก้อง)|2|20|2025-12-14|2025-12-13",
+"172|ปลื้ม (ชาย)ภัสสุ อรุณยะเดช|7|31|2026-03-17|2026-03-17",
+"173|ปลื้ม (ชาย)ภัสสุ อรุณยะเดช 45 ครั้ง|26|20|2026-05-29|2025-07-06",
+"174|ปอน วรรณิการ์ (นิก) เทรนเดี่ยว|5|20|2026-02-11|2026-01-29",
+"175|เฮียป้อม|0|11|2026-05-22|2026-05-22",
+"176|ผึ้ง พนิดา มากมูล|13|20|2026-01-31|2023-02-09",
+"177|ผักบุ้ง|20|20|2026-05-19|2023-02-05",
+"178|ฝน นฤพร พิศโฉม|1|35|2024-06-22|2023-02-05",
+"179|ไต้ฝุุน|5|20|2025-10-31|2025-10-02",
+"180|ฝ้าย อลิสรา สินสอน|6|7|2026-05-31|2025-04-07",
+"181|ไม่มีพศ|10|20|2025-02-10|2025-01-08",
+"182|ฝน อาริสา สุระการ|4|5|2026-05-28|2026-04-08",
+"183|ฝน ปวีณา ธงทอง|23|20|2025-10-21|2025-02-25",
+"184|พั้นช์ +ยูโร|1|10|2026-05-26|2025-12-15",
+"185|พี่พล|4|20|2026-04-30|2026-03-23",
+"186|ฝน ปวีณา ธงทอง (แถม6)|52|20|2026-05-29|2025-05-13",
+"187|เพียว (ลูกพี่พล)|23|20|2026-05-31|2025-10-08",
+"188|น้องพู พชร สุขปำญญา|7|20|2025-05-08|2024-12-11",
+"189|น้องพู (เพื่อนตินติน)|21|20|2026-05-24|2025-04-30",
+"190|หมอพลอย สุรีธร 2คอร์ส|0|14|2026-04-26|2026-04-04",
+"191|พริกหยวก|4|8|2025-12-19|2025-11-04",
+"192|พี่พัด+พริกหยวก|5|20|2026-03-31|2026-03-02",
+"193|พีช คีรัน แรงจบ|5|20|2025-01-15|2025-01-08",
+"194|แพรว สิริกร จันตราชู|14|20|2026-04-22|2025-03-08",
+"195|หมอพลอย สุรีธร|47|20|2026-05-31|2025-03-31",
+"196|เพ้นท์ (เทรนเดี่ยว)|1|20|2025-11-16|2025-11-16",
+"197|น้องพัช 100 ครั้ง|10|20|2026-04-20|2025-10-08",
+"198|น้องพั้นซ์ พี่อวบ|43|20|2026-02-04|2025-10-26",
+"199|แพรว|7|7|2026-04-30|2025-12-22",
+"200|แพท (นิว) กรกนก แสนคำ|0|9|2026-04-01|2026-01-22",
+"201|หมอพลอย (ท+ด)ศิริชรินทร์ มุ่งอ้อมกลาง|29|20|2026-05-04|2026-03-04",
+"202|พิม361|26|20|2026-05-30|2026-04-06",
+"203|ฟลุัค ธนบดี + นัท ธิรารัตน์ (ร้านยา) ()|2|20|2026-04-30|2026-04-27",
+"204|ฟิวส์ ภูริวัฒน์ วรรณโฆษิตพงษ์|18|20|2025-03-20|2025-02-13",
+"205|เฟิร์ส (ตั้ม)|13|20|2026-05-29|2025-11-18",
+"206|พ่อเฟิร์ส|5|20|2025-01-28|2025-01-13",
+"207|เฟย|0|4|2026-05-15|2025-10-07",
+"208|หมอโฟน 2 คอร์ส|0|0|2026-04-30|2025-08-24",
+"209|หมอเฟิร์ส ทิพานัน ()|9|20|2026-01-20|2025-12-09",
+"210|ฟ้า (เน็ต)|1|20|2025-11-18|2025-11-18",
+"211|หมอแฟง พัชชา พูลเพิ่ม|11|20|2026-02-14|2026-01-15",
+"212|เฟิร์น ฐิตาภรณ์ โพธิ์เกตุ|0|9|2026-05-28|2026-01-28",
+"213|ฟิว แฟนชิม|5|20|2026-02-24|2026-02-09",
+"214|เฟียท พิชามญช์ เวมุติรา|5|20|2026-05-31|2026-04-21",
+"215|น้องเฟ (บีม)|2|10|2026-05-26|2026-03-31",
+"216|เหล่าซือเหม้ย|4|20|2025-10-29|2025-10-23",
+"217|มีนา|0|10|2026-04-25|2025-08-04",
+"218|น้องภูมิ|5|19|2026-04-28|2025-08-07",
+"219|พี่เมย์(ครีม)|17|20|2025-07-30|2025-06-16",
+"220|เมย์ กมลมาศ ถือชาติ ()|0|3|2025-08-05|2025-07-31",
+"221|เมย์ มยุรินทร์|17|20|2025-11-10|2023-09-23",
+"222|หมิว กุลธิดา|2|20|2025-01-20|2025-01-17",
+"223|หมอหมิว|9|20|2026-05-28|2026-05-04",
+"224|ตังเมย์(เจมส์)|0|15|2026-04-27|2025-02-19",
+"225|มี้ + แม่มี้|5|5|2026-05-30|2026-05-11",
+"226|พี่มุก(กรุงไทย)|7|8|2026-05-30|2026-03-03",
+"227|พ่อแพรว|0|3|2026-05-31|2026-03-27",
+"228|มายด์ ภัทรพร|7|20|2025-07-08|2025-05-19",
+"229|มิก แม็ค มิว|0|21|2025-05-29|2025-05-22",
+"230|มาร์ค (เล็ก)ดนุพล(ครบแล้ว)|3|20|2026-02-21|2026-02-01",
+"231|เมย์ เบญจพร|0|2|2026-03-02|2026-02-26",
+"232|พี่เมี่ยง|8|20|2026-03-05|2022-04-19",
+"233|หมิว เสาวลักษณ์|0|2|2025-05-29|2025-04-17",
+"234|มาร์ค กระสัง|37|20|2025-08-09|1995-08-05",
+"235|โม ภาสกร|16|20|2025-05-02|2024-12-03",
+"236|น้องมิ้น (อาเอ๋)|4|73|2025-11-14|2023-10-12",
+"237|มิว mmคลินิก แฟนเมย์|33|20|2025-12-15|2023-09-23",
+"238|แมพ|0|8|2025-12-16|2025-12-15",
+"239|เจ้มุก น้องเจ้เมย์|2|20|2025-12-30|2025-12-26",
+"240|มินทร์ นวมินทร์|44|20|2026-04-26|2025-12-17",
+"241|มิ้น เทรนเดี่ยว|32|20|2026-05-29|2026-02-09",
+"242|เมย์ แฟนเพียว เมติมา|25|20|2026-05-31|2026-03-29",
+"243|แม่มีนา ดวงราชย์|0|2|2026-05-20|2026-04-06",
+"244|มาร์ช|0|19|2026-05-06|2025-02-07",
+"245|พี่ยา อารยา|0|20|2026-05-12|2025-02-06",
+"246|เย็น นวลศรี ไหว้ดี|8|20|2025-04-24|2024-10-17",
+"247|ยีน (บิว)อินทัช แซ่เตียว ()|12|20|2026-01-31|2025-10-10",
+"248|พี่เหยี่ยว|12|20|2025-12-15|2025-06-14",
+"249|ยูโร ปำณณวิชญ์|17|20|2026-02-12|2024-03-13",
+"250|พี่ริญา สุภัสรีญา คงชูดี|16|20|2025-06-19|2025-01-23",
+"251|ป้ารุ่งทิพย์|25|20|2026-05-31|2024-04-09",
+"252|เจ้ยี้|1|20|2025-02-02|2025-02-02",
+"253|เฮียเล็ก อำนาจ|0|11|2026-05-16|2026-05-05",
+"254|วรรณ ทัศนีวรรณ|7|20|2025-06-06|2025-05-16",
+"255|เวย์ ศรายุทธ เอี่ยมจําปา|16|20|2024-04-06|1967-04-01",
+"256|วิว วงศ์กร|7|20|2025-05-10|2021-05-11",
+"257|พี่วิชชี่|14|20|2025-05-18|2024-12-02",
+"258|วรพล ท็อป|21|20|2026-01-05|2024-11-14",
+"259|พี่ศรี|63|20|2026-05-29|2025-02-24",
+"260|ส้ม ศุจินทรา|0|17|2026-02-06|2025-10-23",
+"261|พี่แสง เพื่อนเฮียป้อม|0|14|2026-03-02|2026-01-13",
+"262|พี่ส้ม ศุจินทรา|10|20|2025-10-26|2025-08-26",
+"263|สร้อยมุก นัชชา บุญเจริญ|1|20|2026-05-30|2026-03-30",
+"264|ใหม่ เปมิกา|5|6|2026-05-30|1968-10-08",
+"265|หมอหนึ่ง จักรกฤษณ์|13|20|2022-08-09|2022-06-26",
+"266|เจ้หยิน|6|6|2026-05-29|2026-03-12",
+"267|หมวย ธิติมา|3|20|2026-02-12|2025-02-13",
+"268|ครูหนิง|2|10|2026-05-21|2026-05-04",
+"269|เฮียหนุ่ม พรหมพิริยะ อรรถพิสาล|1|20|2026-12-06|2026-12-06",
+"270|หญิง วนิดา|5|20|2026-05-27|2026-05-18",
+"271|อาเอ๋ (พี่ต้อม)|28|20|2026-05-29|2025-05-12",
+"272|โอม พิมจันทร์|4|4|2026-03-04|2026-02-10",
+"273|อ้อม กชกร|14|20|2026-05-08|2025-04-23",
+"274|เอี๊ยด เสาวณีย์|18|20|2025-03-21|2022-02-09",
+"275|เจ้อ้อ ภรวิภา มั่นเสถียรสิน (ศรีชัย)|22|20|2026-05-24|2024-10-06",
+"276|อัาฟ (ธกส)|12|20|2026-05-16|2026-01-14",
+"277|พี่เอส พูนศักดิ์ (15ครั้ง)|13|20|2026-01-24|2025-07-06",
+"278|แอน กตัญชลี|9|20|2022-12-20|2022-10-05",
+"279|อิงค์ หลานครูหนิง|8|20|2023-05-05|2022-10-03",
+"280|อิงค์|18|20|2026-02-11|2025-03-14",
+"281|พี่เอ๋ ตลาด สุภาพร สุรกุล|4|20|2026-05-30|2025-02-25",
+"282|เอี่ยว ฉัตริน กอปรกิจงาม|1|20|2024-12-26|2024-12-26",
+"283|ต้นอ้อ ณัฐธิชา ตามเมืองปำก|2|20|2026-05-28|2025-10-01",
+"284|พี่อาร์ท ออมสิน นันทวุฒิ ()|0|29|2026-05-14|2025-04-06",
+"285|อิง สารพี โชติธนธรกิจ () ไม่มีรายชื่อในแฟ้ม|1|20|2025-07-31|2025-07-31",
+"286|หมออาร์ม ชนวิทญ์ กฤษแสงโชติ ()|17|20|2026-05-30|2026-02-11",
+"287|พี่แอน (พยาบาล) จตุรภัทร|10|20|2026-05-12|2025-06-22",
+"288|พี่เอก หัสนัย หงษ์กลาง (เทรนเดี่ยว)|9|20|2026-05-09|2026-04-08",
+"289|เอัะ หลานครูไข่ 45 ครั้ง|18|20|2026-05-31|2026-04-04",
+"290|โอปอ+โอเมก้า|9|20|2026-05-28|2026-04-10",
+"291|เอวา ชนัญชิดา โอธินทรยุทธ|3|10|2026-05-27|2026-04-29",
+"292|แอน แฟนแดน สิริกาญจน์ เรเงิน|2|6|2026-05-25|2026-05-04",
+"293|เอมมี่ เพื่อนสร้อยมุก|1|22|2026-05-30|2026-05-07",
+"294|เจ้ฮุ้ง|0|13|2026-05-12|2025-01-03",
+"295|เอ๋ อัจฉรา|0|14|2026-01-09|2026-01-07",
+"296|แม่อ่วม (แม่ใบตอง)45 ครั้ง|1|20|2026-05-05|2026-05-05",
+"297|หมอมายด์ บุญศิตา วีรบุญชัย|2|20|2026-05-27|2026-01-30",
+"298|เมย์ แฟนเพียว +พี่ศรี|3|20|2026-02-09|2025-02-23",
+"299|นาย ข.|4|20|2025-05-27|1983-06-07",
+"300|นาย ค.|2|20|2026-06-07|2025-03-02",
+"301|นาย ง.|2|20|2026-06-07|2026-06-06",
+"302|นาย จ|1|20|2026-06-07|2026-06-07",
+"303|นาย ฉ|2|20|2025-04-25|2025-04-23"
+];
+
+function expand(s){
+  const [id,name,sess,max,last,join] = s.split('|');
+  return {id:+id,name,sessions:+sess,maxSessions:+max,
+    lastCheck:last||null,joined:join||null,history:[]};
+}
+
+const DEFAULT_MEMBERS = D.map(expand);
+const WARN = 0.2;
+const STORAGE_KEY = 'surin_gym_v2';
+
+let members = [];
+
+// ── STORAGE (Firebase + localStorage fallback) ─────────────────────
+let _saveTimer = null;
+function saveData(){
+  // Always save to localStorage as backup
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(members)); }catch(e){}
+  // Save to Firebase (debounced)
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(()=>{
+    if(window._fbReady){
+      // Convert array to object keyed by id for Firebase
+      const obj = {};
+      members.forEach(m => { obj['m'+m.id] = m; });
+      window._fbSet(obj).catch(e => console.log('Firebase save error:', e));
+    }
+  }, 1000);
+}
+
+function loadData(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){ const d=JSON.parse(raw); if(Array.isArray(d)&&d.length>0) return d; }
+  }catch(e){}
+  return null;
+}
+
+// ── HELPERS ─────────────────────────────────────────────────────────
+function remaining(m){ return Math.max(0, m.maxSessions - m.sessions); }
+function statusInfo(m){
+  const r=remaining(m), ratio=m.maxSessions>0?r/m.maxSessions:0;
+  if(r===0) return {label:'หมดแล้ว',color:'#ff2d2d',bg:'#3a0000',tier:'out'};
+  if(ratio<=WARN) return {label:`เหลือ ${r} ครั้ง`,color:'#FFD600',bg:'#2a2000',tier:'warn'};
+  return {label:`เหลือ ${r} ครั้ง`,color:'#22c55e',bg:'#002a15',tier:'ok'};
+}
+function isNear(m){ return remaining(m)<=Math.ceil(m.maxSessions*WARN); }
+function today(){ return new Date().toISOString().split('T')[0]; }
+function fmtDate(d){
+  if(!d) return '-';
+  try{ return new Date(d).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'}); }
+  catch(e){ return d; }
+}
+function fmtDateFull(d){
+  if(!d) return '-';
+  try{ return new Date(d).toLocaleDateString('th-TH',{weekday:'short',day:'numeric',month:'short',year:'numeric'}); }
+  catch(e){ return d; }
+}
+function daysSince(d){
+  if(!d) return null;
+  return Math.floor((new Date()-new Date(d))/86400000);
+}
+function now(){
+  const n=new Date();
+  return {date:n.toISOString().split('T')[0], time:n.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})};
+}
+let toastTimer;
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.style.display='block';
+  t.style.background=type==='error'?'#ff2d2d':type==='warn'?'#FFD600':'#22c55e';
+  t.style.color=type==='warn'?'#000':'#fff';
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.style.display='none',2500);
+}
+
+// ── CARD HTML ────────────────────────────────────────────────────────
+function cardHTML(m, compact=false){
+  const st=statusInfo(m), r=remaining(m);
+  const ratio=m.maxSessions>0?(m.sessions/m.maxSessions)*100:0;
+  const days=daysSince(m.lastCheck);
+  const canCheck=r>0;
+  const bc=st.tier==='out'?'#ff2d2d33':st.tier==='warn'?'#FFD60033':'#222';
+  const daysStr=days===null?'':(days===0?'(วันนี้)':`(${days} วันที่แล้ว)`);
+  return `<div class="card" style="border-color:${bc}">
+    <div class="card-top">
+      <div style="flex:1;min-width:0">
+        <div class="member-name">${m.name}</div>
+        <div class="member-sub">สมาชิกตั้งแต่ ${fmtDate(m.joined)}</div>
+      </div>
+      <div class="card-btns">
+        <button class="icon-btn gold" data-action="history" data-id="${m.id}">📋</button>
+        <button class="icon-btn" data-action="edit" data-id="${m.id}">✏️</button>
+      </div>
+    </div>
+    <div class="progress-track"><div class="progress-fill${r===0?' red':''}" style="width:${Math.min(ratio,100)}%"></div></div>
+    <div class="progress-label">
+      <span class="progress-text">มาแล้ว ${m.sessions} / ซื้อมา ${m.maxSessions} ครั้ง</span>
+      <span class="status-pill" style="color:${st.color};background:${st.bg}">${st.label}</span>
+    </div>
+    <div class="last-check">📅 เช็คล่าสุด: <b>${fmtDate(m.lastCheck)}</b> <span style="color:#555">${daysStr}</span></div>
+    <div class="check-row">
+      <div class="check-btn ${canCheck?'':'check-btn-disabled'}" data-action="${canCheck?'checkin':''}" data-id="${m.id}" style="${!canCheck?'background:#1e1e1e;color:#444;cursor:not-allowed':'cursor:pointer'}">${canCheck?'✅ เช็คอิน':'🚫 หมดสิทธิ์'}</div>
+      <button class="hist-btn" data-action="history" data-id="${m.id}">📋</button>
+    </div>
+  </div>`;
+}
+
+// ── EVENT DELEGATION (Safari iOS fix) ────────────────────────────────
+function handleAction(e){
+  const btn = e.target.closest('[data-action]');
+  if(!btn) return;
+  e.preventDefault();
+  const action = btn.dataset.action;
+  const id = +btn.dataset.id;
+  if(action==='checkin') doCheckIn(id);
+  else if(action==='edit') openEdit(id);
+  else if(action==='history') openHistory(id);
+  else if(action==='dash-edit') openEdit(id);
+  else if(action==='dash-history') openHistory(id);
+}
+document.addEventListener('click', handleAction);
+document.addEventListener('touchend', handleAction, {passive:false});
+
+// ── VIEWS ────────────────────────────────────────────────────────────
+let currentView = 'checkin';
+function setView(v){
+  ['checkin','alerts','dashboard'].forEach(id=>{
+    document.getElementById('view-'+id).style.display=id===v?'block':'none';
+  });
+  document.querySelectorAll('.nav-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.view===v);
+  });
+  currentView=v;
+  if(v==='checkin') renderCards();
+  else if(v==='alerts') renderAlerts();
+  else renderDashboard();
+}
+
+function renderCards(){
+  const q=(document.getElementById('search').value||'').toLowerCase();
+  const filtered=members.filter(m=>m.name.toLowerCase().includes(q));
+  document.getElementById('card-grid').innerHTML=filtered.map(m=>cardHTML(m)).join('');
+  updateBadges();
+}
+
+function renderAlerts(){
+  const out=members.filter(m=>remaining(m)===0);
+  const warn=members.filter(m=>{const r=remaining(m);return r>0&&r<=Math.ceil(m.maxSessions*WARN);});
+  const ok=members.length-out.length-warn.length;
+  document.getElementById('al-out').textContent=out.length;
+  document.getElementById('al-warn').textContent=warn.length;
+  document.getElementById('al-ok').textContent=ok;
+  document.getElementById('alert-out-grid').innerHTML=out.map(m=>cardHTML(m,true)).join('') || '<div style="color:#444;text-align:center;padding:16px 0;font-size:13px">ไม่มีสมาชิกในกลุ่มนี้ 🎉</div>';
+  document.getElementById('alert-warn-grid').innerHTML=warn.map(m=>cardHTML(m,true)).join('') || '<div style="color:#444;text-align:center;padding:16px 0;font-size:13px">ไม่มีสมาชิกในกลุ่มนี้ 🎉</div>';
+  updateBadges();
+}
+
+function renderDashboard(){
+  const tod=today();
+  document.getElementById('d-total').textContent=members.length;
+  document.getElementById('d-today').textContent=members.filter(m=>m.lastCheck===tod).length;
+  document.getElementById('d-total-ci').textContent=members.reduce((s,m)=>s+m.sessions,0);
+  const wl=members.filter(isNear);
+  document.getElementById('d-warn').textContent=wl.length;
+  // warn list
+  const wlEl=document.getElementById('dash-warn-list');
+  if(wl.length===0){ wlEl.innerHTML='<div style="color:#4ade80;text-align:center;padding:16px">✅ ทุกคนสบายดี!</div>'; }
+  else{ wlEl.innerHTML=wl.map(m=>{const st=statusInfo(m);return`<div class="warn-row">
+    <div><div class="warn-name">${m.name}</div><div class="warn-meta">เช็คล่าสุด: ${fmtDate(m.lastCheck)}</div></div>
+    <div class="warn-right">
+      <span class="status-pill" style="color:${st.color};background:${st.bg}">${st.label}</span>
+      <button class="icon-btn" data-action="dash-edit" data-id="${m.id}">✏️</button>
+    </div>
+  </div>`;}).join(''); }
+  // table
+  document.getElementById('dash-table').innerHTML=members.map(m=>{const st=statusInfo(m);return`<div class="table-row">
+    <div class="td-name">${m.name}</div>
+    <div class="td">${m.sessions}/${m.maxSessions}</div>
+    <div class="td" style="color:${st.color};font-weight:700">${remaining(m)}</div>
+    <div class="td">${fmtDate(m.lastCheck)}</div>
+    <div style="display:flex;gap:4px">
+      <button class="icon-btn gold" data-action="dash-history" data-id="${m.id}">📋</button>
+      <button class="icon-btn" data-action="dash-edit" data-id="${m.id}">✏️</button>
+    </div>
+  </div>`;}).join('');
+  updateBadges();
+}
+
+function updateBadges(){
+  const wc=members.filter(isNear).length;
+  const wb=document.getElementById('warn-badge');
+  const ab=document.getElementById('alert-badge');
+  if(wc>0){ wb.style.display='flex'; wb.textContent=`⚠️ ${wc} ใกล้หมด — ดูเลย →`; ab.style.display='inline'; ab.textContent=wc; }
+  else{ wb.style.display='none'; ab.style.display='none'; }
+}
+
+function refreshView(){
+  if(currentView==='checkin') renderCards();
+  else if(currentView==='alerts') renderAlerts();
+  else renderDashboard();
+}
+
+// ── CHECK IN ─────────────────────────────────────────────────────────
+let pendingCheckInId = null;
+
+function doCheckIn(id){
+  const idx=members.findIndex(m=>m.id===id);
+  if(idx<0) return;
+  const m=members[idx];
+  if(remaining(m)<=0){ showToast(`${m.name} หมดสิทธิ์แล้ว!`,'error'); return; }
+  const {date}=now();
+  const todayCount=m.history.filter(h=>h.date===date).length;
+  if(todayCount>=2){
+    showToast(`${m.name} — เช็คอินครบ 2 ครั้งวันนี้แล้ว ไม่สามารถเพิ่มได้`,'error');
+    return;
+  }
+  if(todayCount>=1){
+    // Already checked in today — show warning + note modal
+    pendingCheckInId=id;
+    showDuplicateModal(m, todayCount, date);
+  } else {
+    doCheckInNow(id,'');
+  }
+}
+
+function showDuplicateModal(m, count, date){
+  document.getElementById('modal-box').innerHTML=`
+  <div class="modal" style="max-width:360px">
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:36px;margin-bottom:8px">⚠️</div>
+      <div style="font-weight:800;font-size:16px;color:#FFD600;margin-bottom:4px">เช็คอินซ้ำวันเดียวกัน</div>
+      <div style="color:#888;font-size:13px">${m.name}</div>
+      <div style="color:#666;font-size:12px;margin-top:4px">วันนี้เช็คไปแล้ว <b style="color:#FFD600">${count} ครั้ง</b></div>
+    </div>
+    <label>หมายเหตุ (เหตุผลที่มาซ้ำ)</label>
+    <input type="text" id="dup-note" placeholder="เช่น เทรนเช้า-เย็น, ลืมเช็ค..." style="margin-bottom:4px" autofocus>
+    <div style="color:#555;font-size:11px;margin-bottom:16px">กรอกหรือเว้นว่างก็ได้</div>
+    <div class="modal-btns">
+      <button class="btn-primary" onclick="confirmDupCheckIn()">✅ เช็คอินต่อ</button>
+      <button class="btn-secondary" onclick="closeModal()">ยกเลิก</button>
+    </div>
+  </div>`;
+  showModal();
+  setTimeout(()=>{ const el=document.getElementById('dup-note'); if(el) el.focus(); },100);
+}
+
+function confirmDupCheckIn(){
+  const note=document.getElementById('dup-note').value.trim();
+  closeModal();
+  doCheckInNow(pendingCheckInId, note);
+  pendingCheckInId=null;
+}
+
+function doCheckInNow(id, note=''){
+  const idx=members.findIndex(m=>m.id===id);
+  if(idx<0) return;
+  const m=members[idx];
+  const {date,time}=now();
+  const newH={id:(m.history.length?Math.max(...m.history.map(h=>h.id))+1:1), date, time, note};
+  members[idx]={...m, sessions:m.sessions+1, lastCheck:date, history:[...m.history,newH]};
+  const r=remaining(members[idx]);
+  if(r===0) showToast(`${m.name} — ใช้หมดแล้ว! กรุณาต่อแพ็กเกจ`,'error');
+  else if(r<=Math.ceil(members[idx].maxSessions*WARN)) showToast(`${m.name} — เหลือแค่ ${r} ครั้ง ⚠️`,'warn');
+  else showToast(`${m.name} — เช็คอินสำเร็จ ✓ (เหลือ ${r} ครั้ง)`);
+  saveData(); refreshView();
+}
+
+// ── EDIT MODAL ────────────────────────────────────────────────────────
+let editingId=null;
+function openEdit(id){
+  editingId=id;
+  const m=members.find(m=>m.id===id);
+  renderEditModal(m);
+  showModal();
+}
+function renderEditModal(m){
+  const r=remaining(m);
+  document.getElementById('modal-box').innerHTML=`
+  <div class="modal">
+    <div class="modal-title">✏️ แก้ไขข้อมูลสมาชิก</div>
+    <label>ชื่อ-นามสกุล</label>
+    <input type="text" id="e-name" value="${m.name.replace(/"/g,'&quot;')}">
+    <div style="margin-top:14px">
+      <div style="color:#888;font-size:12px;margin-bottom:8px">จำนวนครั้ง</div>
+      <div class="session-row">
+        <div class="session-box gold">
+          <div class="slabel">ซื้อมา</div>
+          <input type="number" id="e-max" value="${m.maxSessions}" oninput="syncRemain()" min="0">
+        </div>
+        <div class="op">−</div>
+        <div class="session-box dark">
+          <div class="slabel">มาแล้ว</div>
+          <input type="number" id="e-sess" value="${m.sessions}" oninput="syncRemain()" min="0">
+        </div>
+        <div class="op">=</div>
+        <div class="session-box remain${r<=0?' red':''}" id="e-remain-box">
+          <div class="slabel">เหลือ</div>
+          <div class="rval" id="e-remain">${r}</div>
+        </div>
+      </div>
+      <div class="session-hint">ซื้อมา − มาแล้ว = เหลือ</div>
+    </div>
+    <label>วันเริ่มต้น</label>
+    <input type="date" id="e-joined" value="${m.joined||''}">
+    <div class="modal-btns">
+      <button class="btn-primary" onclick="saveEdit()">💾 บันทึก</button>
+      <button class="btn-secondary" onclick="closeModal()">ยกเลิก</button>
+    </div>
+    <button class="btn-danger" onclick="confirmDelete(${m.id})">🗑️ ลบสมาชิกนี้ออกจากระบบ</button>
+  </div>`;
+}
+function syncRemain(){
+  const max=+document.getElementById('e-max').value||0;
+  const sess=+document.getElementById('e-sess').value||0;
+  const r=max-sess;
+  document.getElementById('e-remain').textContent=r;
+  const box=document.getElementById('e-remain-box');
+  box.className='session-box remain'+(r<=0?' red':'');
+}
+function saveEdit(){
+  const idx=members.findIndex(m=>m.id===editingId);
+  if(idx<0) return;
+  members[idx]={...members[idx],
+    name:document.getElementById('e-name').value,
+    sessions:+document.getElementById('e-sess').value||0,
+    maxSessions:+document.getElementById('e-max').value||0,
+    joined:document.getElementById('e-joined').value||null
+  };
+  saveData(); closeModal(); refreshView();
+  showToast('บันทึกข้อมูลสำเร็จ ✓');
+}
+function addMember(){
+  const newId=members.length?Math.max(...members.map(m=>m.id))+1:1;
+  const m={id:newId,name:'สมาชิกใหม่',sessions:0,maxSessions:20,lastCheck:null,joined:today(),history:[]};
+  members.push(m); saveData();
+  openEdit(newId);
+}
+
+// ── DELETE ────────────────────────────────────────────────────────────
+function confirmDelete(id){
+  const m=members.find(m=>m.id===id);
+  document.getElementById('modal-box').innerHTML=`
+  <div class="confirm-box">
+    <div class="icon">🗑️</div>
+    <div class="ctitle">ลบสมาชิก</div>
+    <div class="cname">"${m.name}"</div>
+    <div class="cdesc">ประวัติการเช็คอินทั้งหมดจะหายไปด้วย ไม่สามารถกู้คืนได้</div>
+    <div class="confirm-btns">
+      <button class="btn-primary" style="background:#ff2d2d" onclick="doDelete(${id})">ลบเลย</button>
+      <button class="btn-secondary" onclick="openEdit(${id})">ยกเลิก</button>
+    </div>
+  </div>`;
+}
+function doDelete(id){
+  members=members.filter(m=>m.id!==id);
+  saveData(); closeModal(); refreshView();
+  showToast('ลบสมาชิกแล้ว');
+}
+
+// ── HISTORY MODAL ──────────────────────────────────────────────────────
+let histId=null, editingHistEntry=null;
+function openHistory(id){
+  histId=id; editingHistEntry=null;
+  renderHistory();
+  showModal();
+}
+function renderHistory(){
+  const m=members.find(m=>m.id===histId);
+  if(!m) return;
+  const hist=[...(m.history||[])].sort((a,b)=>b.date.localeCompare(a.date)||(b.time||'').localeCompare(a.time||''));
+  const r=remaining(m);
+  document.getElementById('modal-box').innerHTML=`
+  <div class="modal">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+      <div>
+        <div class="modal-title">📋 ประวัติการเช็คอิน</div>
+        <div style="color:#888;font-size:13px;margin-bottom:12px">${m.name}</div>
+      </div>
+      <button onclick="closeModal()" style="background:none;border:none;color:#666;font-size:22px;cursor:pointer;line-height:1;padding:0 4px">×</button>
+    </div>
+    <div class="hist-summary">
+      <div class="hist-stat"><div class="hval" style="color:#FFD600">${m.sessions} ครั้ง</div><div class="hlbl">มาแล้ว</div></div>
+      <div class="hist-stat"><div class="hval" style="color:#22c55e">${r} ครั้ง</div><div class="hlbl">เหลือ</div></div>
+      <div class="hist-stat"><div class="hval" style="color:#aaa">${fmtDate(m.lastCheck)}</div><div class="hlbl">เช็คล่าสุด</div></div>
+    </div>
+    <button class="hist-add-btn" onclick="addHistEntry()">+ เพิ่มรายการเช็คอินใหม่</button>
+    <div id="add-form-container"></div>
+    <div class="timeline" id="hist-timeline">
+      ${hist.length===0?'<div style="color:#444;text-align:center;padding:28px 0;font-size:13px">ยังไม่มีประวัติการเช็คอิน</div>':
+        hist.map((h,i)=>`
+        <div class="tl-item" id="tl-${h.id}">
+          <div class="tl-dot${i===0?' first':''}">${i===0?'★':(hist.length-i)}</div>
+          <div style="flex:1">
+            ${editingHistEntry===h.id?editFormHTML(h,i,hist.length):entryHTML(h,i,hist.length,m.maxSessions)}
+          </div>
+        </div>`).join('')
+      }
+    </div>
+  </div>`;
+}
+function entryHTML(h,i,total,max){
+  const noteStr=h.note?`<span style="background:#1a2a1a;color:#4ade80;border-radius:6px;padding:1px 7px;font-size:10px;margin-left:4px">📝 ${h.note}</span>`:'';
+  return `<div class="tl-card${i===0?' first':''}">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div style="flex:1;min-width:0">
+        <div class="tl-date${i===0?' first':''}">${fmtDateFull(h.date)}${i===0?'<span style="margin-left:6px;font-size:10px;background:#FFD60022;color:#FFD600;border-radius:20px;padding:2px 7px">ล่าสุด</span>':''}</div>
+        <div class="tl-meta" style="display:flex;flex-wrap:wrap;gap:4px;align-items:center">${h.time?'🕐 '+h.time+'  ':''} ครั้งที่ ${total-i} / ${max}${noteStr}</div>
+      </div>
+      <div class="tl-actions" style="flex-shrink:0;margin-left:6px">
+        <button class="tl-edit-btn" onclick="editHistEntry(${h.id})">✏️</button>
+        <button class="tl-del-btn" onclick="confirmDelHist(${h.id})">🗑️</button>
+      </div>
+    </div>
+  </div>`;
+}
+function editFormHTML(h,i,total){
+  return `<div class="tl-edit-form">
+    <div style="color:#FFD600;font-size:12px;font-weight:700;margin-bottom:8px">✏️ แก้ไขครั้งที่ ${total-i}</div>
+    <div class="row">
+      <div class="col"><label>วันที่</label><input type="date" id="hef-date" value="${h.date}"></div>
+      <div class="col"><label>เวลา</label><input type="time" id="hef-time" value="${h.time||''}"></div>
+    </div>
+    <div><label>หมายเหตุ</label><input type="text" id="hef-note" value="${(h.note||'').replace(/"/g,'&quot;')}" placeholder="เช่น เทรนเช้า-เย็น..."></div>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn-primary" style="padding:8px" onclick="saveHistEntry(${h.id})">💾 บันทึก</button>
+      <button class="btn-secondary" style="padding:8px" onclick="cancelHistEdit()">ยกเลิก</button>
+    </div>
+  </div>`;
+}
+function editHistEntry(hid){ editingHistEntry=hid; renderHistory(); }
+function cancelHistEdit(){ editingHistEntry=null; renderHistory(); }
+function saveHistEntry(hid){
+  const m=members.find(m=>m.id===histId);
+  const date=document.getElementById('hef-date').value;
+  const time=document.getElementById('hef-time').value;
+  const note=document.getElementById('hef-note').value.trim();
+  m.history=m.history.map(h=>h.id===hid?{...h,date,time,note}:h);
+  m.lastCheck=m.history.length?[...m.history].sort((a,b)=>b.date.localeCompare(a.date))[0].date:null;
+  editingHistEntry=null; saveData(); renderHistory(); refreshView();
+  showToast('อัปเดตประวัติสำเร็จ ✓');
+}
+function confirmDelHist(hid){
+  const m=members.find(m=>m.id===histId);
+  const h=m.history.find(h=>h.id===hid);
+  document.getElementById('modal-box').innerHTML=`
+  <div class="confirm-box">
+    <div class="icon">🗑️</div>
+    <div class="ctitle">ลบประวัติ</div>
+    <div class="cname">${fmtDate(h.date)}</div>
+    <div class="cdesc">จำนวนสิทธิ์จะลดลง 1 ครั้ง</div>
+    <div class="confirm-btns">
+      <button class="btn-primary" style="background:#ff2d2d" onclick="doDelHist(${hid})">ลบเลย</button>
+      <button class="btn-secondary" onclick="openHistory(${histId})">ยกเลิก</button>
+    </div>
+  </div>`;
+}
+function doDelHist(hid){
+  const m=members.find(m=>m.id===histId);
+  m.history=m.history.filter(h=>h.id!==hid);
+  m.sessions=Math.max(0,m.sessions-1);
+  m.lastCheck=m.history.length?[...m.history].sort((a,b)=>b.date.localeCompare(a.date))[0].date:null;
+  saveData(); openHistory(histId); refreshView();
+  showToast('ลบประวัติแล้ว');
+}
+let addFormOpen=false;
+function addHistEntry(){
+  addFormOpen=true;
+  const t=today(), ti=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('add-form-container').innerHTML=`
+  <div class="tl-edit-form" style="margin-bottom:12px">
+    <div style="color:#FFD600;font-size:12px;font-weight:700;margin-bottom:8px">➕ เพิ่มรายการใหม่</div>
+    <div class="row">
+      <div class="col"><label>วันที่</label><input type="date" id="new-date" value="${t}"></div>
+      <div class="col"><label>เวลา</label><input type="time" id="new-time" value="${ti}"></div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn-primary" style="padding:9px" onclick="saveNewHist()">✅ เพิ่ม</button>
+      <button class="btn-secondary" style="padding:9px" onclick="cancelNewHist()">ยกเลิก</button>
+    </div>
+  </div>`;
+}
+function cancelNewHist(){ document.getElementById('add-form-container').innerHTML=''; }
+function saveNewHist(){
+  const m=members.find(m=>m.id===histId);
+  const date=document.getElementById('new-date').value;
+  const time=document.getElementById('new-time').value;
+  if(!date) return;
+  const newId=m.history.length?Math.max(...m.history.map(h=>h.id))+1:1;
+  m.history.push({id:newId,date,time});
+  m.sessions++;
+  m.lastCheck=[...m.history].sort((a,b)=>b.date.localeCompare(a.date))[0].date;
+  saveData(); openHistory(histId); refreshView();
+  showToast('เพิ่มประวัติสำเร็จ ✓');
+}
+
+// ── MODAL HELPERS ─────────────────────────────────────────────────────
+function showModal(){ document.getElementById('modal-overlay').style.display='flex'; }
+function closeModal(){ document.getElementById('modal-overlay').style.display='none'; editingId=null; histId=null; }
+function overlayClick(e){ if(e.target===document.getElementById('modal-overlay')) closeModal(); }
+
+// ── INIT ──────────────────────────────────────────────────────────────
+function showApp(){
+  document.getElementById('loading').style.display='none';
+  document.getElementById('app').style.display='block';
+  renderCards();
+}
+
+window.addEventListener('load', ()=>{
+  // Try localStorage first (instant)
+  const localSaved = loadData();
+  if(localSaved){
+    members = localSaved;
+    showApp();
+  }
+
+  // Hard timeout — ถ้า 5 วินาทียังไม่โหลดเสร็จ ให้แสดงแอพเลย
+  const fallbackTimer = setTimeout(()=>{
+    if(document.getElementById('loading').style.display !== 'none'){
+      members = localSaved || DEFAULT_MEMBERS;
+      if(!localSaved) saveData();
+      showApp();
+      showToast('⚠️ Firebase timeout — ใช้ข้อมูลในเครื่อง', 'warn');
+    }
+  }, 5000);
+
+  // Load from Firebase
+  let fbAttempts = 0;
+  const tryFirebase = () => {
+    fbAttempts++;
+    if(fbAttempts > 20){ // หยุดลองหลัง 10 วินาที
+      clearTimeout(fallbackTimer);
+      if(document.getElementById('loading').style.display !== 'none'){
+        members = localSaved || DEFAULT_MEMBERS;
+        if(!localSaved) saveData();
+        showApp();
+      }
+      return;
+    }
+    if(window._fbReady){
+      clearTimeout(fallbackTimer);
+      if(!localSaved) showToast('🔄 กำลัง sync ข้อมูล...', 'warn');
+      window._fbGet().then(data => {
+        if(data){
+          const arr = Object.values(data);
+          if(arr.length > 0){
+            members = arr;
+            try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(members)); }catch(e){}
+            if(!localSaved){ showApp(); } else { refreshView(); }
+            showToast('✅ Sync สำเร็จ');
+          } else {
+            // Firebase ว่าง = ครั้งแรก บันทึก default ขึ้น Firebase
+            members = localSaved || DEFAULT_MEMBERS;
+            saveData();
+            if(!localSaved) showApp();
+            else showToast('✅ ข้อมูลล่าสุดแล้ว');
+          }
+        } else {
+          members = localSaved || DEFAULT_MEMBERS;
+          if(!localSaved){ saveData(); showApp(); }
+        }
+      }).catch(e => {
+        if(!localSaved){
+          members = DEFAULT_MEMBERS;
+          showApp();
+        }
+        showToast('⚠️ Firebase เชื่อมต่อไม่ได้', 'error');
+      });
+    } else {
+      setTimeout(tryFirebase, 500);
+    }
+  };
+
+  if(!localSaved){
+    tryFirebase();
+  } else {
+    setTimeout(tryFirebase, 200);
+  }
+});
+</script>
+</body>
+</html>
