@@ -139,24 +139,23 @@ label{display:block;color:#888;font-size:12px;margin-bottom:4px;margin-top:12px}
 input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none}
 input[type=number]{-moz-appearance:textfield}
 </style>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyAPWgZX9u1kTDYF15X9bP_WSvL-xDHNxI",
-    authDomain: "surin-s-muscle.firebaseapp.com",
-    databaseURL: "https://surin-s-muscle-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "surin-s-muscle",
-    storageBucket: "surin-s-muscle.firebasestorage.app",
-    messagingSenderId: "16222561469",
-    appId: "1:16222561469:web:cd5832aa30aadafbe803d4"
-  };
   try {
-    const app = firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-    const gymRef = db.ref('gym');
-    window._fbSet = (data) => gymRef.set(data);
-    window._fbGet = () => gymRef.get().then(s => s.val());
+    firebase.initializeApp({
+      apiKey: "AIzaSyAPWgZX9u1kTDYF15X9bP_WSvL-xDHNxI",
+      authDomain: "surin-s-muscle.firebaseapp.com",
+      databaseURL: "https://surin-s-muscle-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "surin-s-muscle",
+      storageBucket: "surin-s-muscle.firebasestorage.app",
+      messagingSenderId: "16222561469",
+      appId: "1:16222561469:web:cd5832aa30aadafbe803d4"
+    });
+    const _db = firebase.database();
+    const _ref = _db.ref('gym');
+    window._fbSet = (data) => _ref.set(data);
+    window._fbGet = () => _ref.get().then(s => s.val());
     window._fbReady = true;
   } catch(e) {
     console.log('Firebase init error:', e);
