@@ -774,62 +774,107 @@ function doCheckIn(id){
   const m=members[idx];
   if(!m.history) m.history=[];
   if(remaining(m)<=0){ showToast(`${m.name} หมดสิทธิ์แล้ว!`,'error'); return; }
-  const {date}=now();
-  const todayCount=m.history.filter(h=>h.date===date).length;
-  if(todayCount>=2){
-    showToast(`${m.name} — เช็คอินครบ 2 ครั้งวันนี้แล้ว ไม่สามารถเพิ่มได้`,'error');
-    return;
-  }
-  if(todayCount>=1){
-    // Already checked in today — show warning + note modal
-    pendingCheckInId=id;
-    showDuplicateModal(m, todayCount, date);
-  } else {
-    doCheckInNow(id,'');
-  }
+  // Always show date picker first
+  pendingCheckInId=id;
+  showCheckInModal(m);
 }
 
-function showDuplicateModal(m, count, date){
+function showCheckInModal(m){
+  const todayStr=today();
+  const curTime=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
   document.getElementById('modal-box').innerHTML=`
   <div class="modal" style="max-width:360px">
     <div style="text-align:center;margin-bottom:16px">
-      <div style="font-size:36px;margin-bottom:8px">⚠️</div>
-      <div style="font-weight:800;font-size:16px;color:#FFD600;margin-bottom:4px">เช็คอินซ้ำวันเดียวกัน</div>
+      <div style="font-size:32px;margin-bottom:6px">✅</div>
+      <div style="font-weight:800;font-size:16px;color:#FFD600;margin-bottom:4px">เช็คอิน</div>
       <div style="color:#888;font-size:13px">${m.name}</div>
-      <div style="color:#666;font-size:12px;margin-top:4px">วันนี้เช็คไปแล้ว <b style="color:#FFD600">${count} ครั้ง</b></div>
     </div>
-    <label>หมายเหตุ (เหตุผลที่มาซ้ำ)</label>
-    <input type="text" id="dup-note" placeholder="เช่น เทรนเช้า-เย็น, ลืมเช็ค..." style="margin-bottom:4px" autofocus>
-    <div style="color:#555;font-size:11px;margin-bottom:16px">กรอกหรือเว้นว่างก็ได้</div>
+    <label>วันที่</label>
+    <input type="date" id="ci-date" value="${todayStr}" style="margin-bottom:8px">
+    <label>เวลา</label>
+    <input type="time" id="ci-time" value="${curTime}" style="margin-bottom:8px">
+    <label>หมายเหตุ (ถ้ามี)</label>
+    <input type="text" id="ci-note" placeholder="เช่น เทรนเช้า-เย็น..." style="margin-bottom:16px">
     <div class="modal-btns">
-      <button class="btn-primary" onclick="confirmDupCheckIn()">✅ เช็คอินต่อ</button>
+      <button class="btn-primary" onclick="confirmCheckIn()">✅ ยืนยันเช็คอิน</button>
       <button class="btn-secondary" onclick="closeModal()">ยกเลิก</button>
     </div>
   </div>`;
   showModal();
-  setTimeout(()=>{ const el=document.getElementById('dup-note'); if(el) el.focus(); },100);
 }
 
-function confirmDupCheckIn(){
-  const note=document.getElementById('dup-note').value.trim();
+function confirmCheckIn(){
+  const date=document.getElementById('ci-date').value;
+  const time=document.getElementById('ci-time').value;
+  const note=document.getElementById('ci-note').value.trim();
+  if(!date){ showToast('กรุณาเลือกวันที่','error'); return; }
   closeModal();
-  doCheckInNow(pendingCheckInId, note);
-  pendingCheckInId=null;
-}
 
-function doCheckInNow(id, note=''){
+  const id=pendingCheckInId;
+  pendingCheckInId=null;
   const idx=members.findIndex(m=>m.id===id);
   if(idx<0) return;
   const m=members[idx];
   if(!m.history) m.history=[];
-  const {date,time}=now();
+
+  // Check duplicate on selected date
+  const dateCount=m.history.filter(h=>h.date===date).length;
+  if(dateCount>=2){
+    showToast(`${m.name} — เช็คอินครบ 2 ครั้งในวันนั้นแล้ว`,'error');
+    return;
+  }
+  if(dateCount===1){
+    // Ask for confirmation
+    pendingCheckInId=id;
+    pendingCheckInDate=date;
+    pendingCheckInTime=time;
+    pendingCheckInNote=note;
+    document.getElementById('modal-box').innerHTML=`
+    <div class="modal" style="max-width:360px">
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="font-size:36px;margin-bottom:8px">⚠️</div>
+        <div style="font-weight:800;font-size:16px;color:#FFD600;margin-bottom:4px">เช็คอินซ้ำวันเดียวกัน</div>
+        <div style="color:#888;font-size:13px">${m.name}</div>
+        <div style="color:#666;font-size:12px;margin-top:4px">วันที่ ${date} เช็คไปแล้ว <b style="color:#FFD600">1 ครั้ง</b></div>
+      </div>
+      <div class="modal-btns">
+        <button class="btn-primary" onclick="confirmDupCheckIn()">✅ เช็คอินต่อ</button>
+        <button class="btn-secondary" onclick="closeModal()">ยกเลิก</button>
+      </div>
+    </div>`;
+    showModal();
+    return;
+  }
+  doCheckInWithData(id, date, time, note);
+}
+
+let pendingCheckInDate='', pendingCheckInTime='', pendingCheckInNote='';
+
+function confirmDupCheckIn(){
+  closeModal();
+  doCheckInWithData(pendingCheckInId, pendingCheckInDate, pendingCheckInTime, pendingCheckInNote);
+  pendingCheckInId=null;
+}
+
+function doCheckInWithData(id, date, time, note=''){
+  const idx=members.findIndex(m=>m.id===id);
+  if(idx<0) return;
+  const m=members[idx];
+  if(!m.history) m.history=[];
   const newH={id:(m.history.length?Math.max(...m.history.map(h=>h.id))+1:1), date, time, note};
-  members[idx]={...m, sessions:m.sessions+1, lastCheck:date, history:[...m.history,newH]};
+  const newHistory=[...m.history, newH].sort((a,b)=>a.date.localeCompare(b.date));
+  const lastCheck=newHistory[newHistory.length-1].date;
+  members[idx]={...m, sessions:m.sessions+1, lastCheck, history:newHistory};
   const r=remaining(members[idx]);
   if(r===0) showToast(`${m.name} — ใช้หมดแล้ว! กรุณาต่อแพ็กเกจ`,'error');
   else if(r<=Math.ceil(members[idx].maxSessions*WARN)) showToast(`${m.name} — เหลือแค่ ${r} ครั้ง ⚠️`,'warn');
   else showToast(`${m.name} — เช็คอินสำเร็จ ✓ (เหลือ ${r} ครั้ง)`);
   saveData(); refreshView();
+}
+
+function doCheckInNow(id, note=''){
+  const {date,time}=now();
+  doCheckInWithData(id, date, time, note);
 }
 
 // ── EDIT MODAL ────────────────────────────────────────────────────────
